@@ -1,3 +1,5 @@
+#addin nuget:?package=Cake.Kudu.Client&version=0.3.0
+
 // Target - The task you want to start. Runs the Default task if not specified.
 var target = Argument("Target", "Default");  
 var configuration = Argument("Configuration", "Release");
@@ -67,6 +69,23 @@ Task("PublishWeb")
             });
     });
 
+Task("DeployToAzure")
+    .Description("Deploy to Azure ")
+    .Does(() =>
+    {
+        // https://hackernoon.com/run-from-zip-with-cake-kudu-client-5c063cd72b37
+        string baseUri  = EnvironmentVariable("KUDU_CLIENT_BASEURI"),
+               userName = EnvironmentVariable("KUDU_CLIENT_USERNAME"),
+               password = EnvironmentVariable("KUDU_CLIENT_PASSWORD");
+        
+        IKuduClient kuduClient = KuduClient(
+            baseUri,
+            userName,
+            password);
+        FilePath deployFilePath = kuduClient.ZipRunFromDirectory(distDirectory);
+        Information("Deployed to {0}", deployFilePath);
+    });
+
 // A meta-task that runs all the steps to Build and Test the app
 Task("BuildAndTest")  
     .IsDependentOn("Clean")
@@ -78,7 +97,8 @@ Task("BuildAndTest")
 // to run everything starting from Clean, all the way up to Publish.
 Task("Default")  
     .IsDependentOn("BuildAndTest")
-    .IsDependentOn("PublishWeb");
+    .IsDependentOn("PublishWeb")
+    .IsDependentOn("DeployToAzure");
 
 // Executes the task specified in the target argument.
 RunTarget(target);
