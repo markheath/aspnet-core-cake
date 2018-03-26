@@ -77,7 +77,7 @@ Task("DeployToAzure")
         string baseUri  = EnvironmentVariable("KUDU_CLIENT_BASEURI"),
                userName = EnvironmentVariable("KUDU_CLIENT_USERNAME"),
                password = EnvironmentVariable("KUDU_CLIENT_PASSWORD");
-        
+        Information($"Kudu deploy to {baseUri} {userName} {password}");
         IKuduClient kuduClient = KuduClient(
             baseUri,
             userName,
