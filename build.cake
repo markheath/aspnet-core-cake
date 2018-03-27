@@ -1,4 +1,4 @@
-#addin nuget:?package=Cake.Kudu.Client&version=0.3.0
+#addin nuget:?package=Cake.Kudu.Client&version=0.5.0
 
 // Target - The task you want to start. Runs the Default task if not specified.
 var target = Argument("Target", "Default");  
@@ -82,7 +82,8 @@ Task("DeployToAzure")
             baseUri,
             userName,
             password);
-        FilePath deployFilePath = kuduClient.ZipRunFromDirectory(distDirectory);
+        var skipPostDeploymentValidation = true; // .NET core apps don't report their version number
+        FilePath deployFilePath = kuduClient.ZipRunFromDirectory(distDirectory, skipPostDeploymentValidation);
         Information("Deployed to {0}", deployFilePath);
     });
 
